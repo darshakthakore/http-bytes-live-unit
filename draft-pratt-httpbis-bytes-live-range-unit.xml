@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/rfc2629.dtd" [
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2629 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY RFC4234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4234.xml">
+<!ENTITY RFC7233 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7233.xml">
+
+<!-- Fudge for XMLmind which doesn't have this built in -->
+<!ENTITY nbsp    "&#160;">
+]>
+
+<!-- Extra statement used by XSLT processors to control the output style. -->
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<!-- Processing Instructions can be placed here but if you are editing 
+     with XMLmind (and maybe other XML editors) they are better placed
+     after the rfc element start tag as shown below. -->
+     
+<rfc
+    category="info"
+    ipr="trust200902"
+    docName="draft-pratt-httpbis-bytes-live-range-unit-latest" >
+
+    <!-- Processing Instructions- PIs (for a complete list and description,
+          see file http://xml.resource.org/authoring/README.html and below... -->
+
+    <!-- Some of the more generally applicable PIs that most I-Ds might want to use -->
+    
+    <!-- Try to enforce the ID-nits conventions and DTD validity -->
+    <?rfc strict="yes" ?>
+
+    <!-- Items used when reviewing the document -->
+    <?rfc comments="no" ?>  <!-- Controls display of <cref> elements -->
+    <?rfc inline="no" ?>    <!-- When no, put comments at end in comments section,
+                                 otherwise, put inline -->
+    <?rfc editing="no" ?>   <!-- When yes, insert editing marks: editing marks consist of a 
+                                 string such as <29> printed in the blank line at the 
+                                 beginning of each paragraph of text. -->
+
+    <!-- Create Table of Contents (ToC) and set some options for it.  
+         Note the ToC may be omitted for very short documents,but idnits insists on a ToC 
+         if the document has more than 15 pages. --> 
+   <?rfc toc="yes"?>
+   <?rfc tocompact="yes"?> <!-- If "yes" eliminates blank lines before main section entries. -->
+   <?rfc tocdepth="4"?>    <!-- Sets the number of levels of sections/subsections... in ToC --> 
+
+    <!-- Choose the options for the references. 
+         Some like symbolic tags in the references (and citations) and others prefer 
+         numbers. The RFC Editor always uses symbolic tags.
+         The tags used are the anchor attributes of the references. --> 
+    <?rfc symrefs="yes"?>
+    <?rfc sortrefs="yes" ?> <!-- If "yes", causes the references to be sorted in order of tags.
+                                 This doesn't have any effect unless symrefs is "yes" also. -->
+
+    <!-- These two save paper: Just setting compact to "yes" makes savings by not starting each 
+         main section on a new page but does not omit the blank lines between list items. 
+         If subcompact is also "yes" the blank lines between list items are also omitted. -->
+    <?rfc compact="yes" ?>
+    <?rfc subcompact="no" ?>
+    <!-- end of list of popular I-D processing instructions -->
+
+    <!-- ***** FRONT MATTER ***** -->
+<front>
+    <!-- The abbreviated title is used in the page header - it is only necessary if the 
+         full title is longer than 42 characters -->
+    <title abbrev="HTTP bytes-live Range Unit">HTTP bytes-live Range Unit for Live Content</title>
+
+    <author
+        fullname="Craig Pratt" 
+        initials="C." 
+        surname="Pratt">
+
+        <organization abbrev="CableLabs">CableLabs</organization>
+        <address>
+            <postal>
+                <street>16455 NW Comadrona Ln</street>
+                <city>Portland</city>
+                <region>OR</region>
+                <code>97229-8910</code>
+                <country>US</country>
+            </postal>
+        <email>craig@ecaspia.com</email>
+        </address>
+    </author>
+    
+    <author fullname="Barbara Stark" 
+            initials="B.H." 
+            surname="Stark" >
+      <organization>AT&amp;T</organization>
+      <address>
+        <postal>
+          <street></street>
+          <city>Atlanta</city>
+          <region>GA</region>
+          <code></code>
+          <country>US</country>
+        </postal>
+        <email>barbara.stark@att.com</email>
+      </address>
+    </author>
+    
+    <author fullname="Darshak Thakore"
+            initials="D." 
+            surname="Thakore" >
+        <organization abbrev="CableLabs">CableLabs</organization>
+        <address>
+            <postal>
+                <street>858 Coal Creek Circle</street>
+                <city>Louisville</city>
+                <region>CO</region>
+                <code>80027</code>
+            </postal>
+            <email>d.thakore@cablelabs.com</email>
+        </address>
+    </author>
+    
+    <date year="2016" month="April"/> 
+         
+    <!-- Meta-data Declarations -->
+    
+    <!-- Notice the use of &amp; as an escape for & which would otherwise
+         start an entity declaration, whereas we want a literal &. -->
+    <area>Applications and Real Time</area>
+
+    <!-- WG name at the upperleft corner of the doc,
+         IETF fine for individual submissions.  You can also
+         omit this element in which case in defaults to "Network Working Group" -
+         a hangover from the ancient history of the IETF! -->
+    <workgroup>Hypertext Transfer Protocol</workgroup>
+    
+    <keyword>http range unit</keyword>
+    
+    <!-- The DTD allows multiple area and workgroup elements but only the first one has any
+         effect on output.  -->
+    <!-- You can add <keyword/> elements here.  They will be incorporated into HTML output
+         files in a meta tag but they have no effect on text or nroff output. -->
+    
+    
+    <abstract>
+        <t>
+            To accommodate byte range requests for content that has 
+            data appended over time, this document defines a new HTTP range 
+            unit named "bytes-live". The "bytes-live" range unit provides the
+            ability for a client to specify a byte range in a GET or HEAD request
+            which starts at an arbitrary byte offset within the representation
+            and ends at an indeterminate offset, represented by "*".
+        </t>
+    </abstract>
+
+    <note title="Requirements Language">
+        <t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;,
+        &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;,
+        &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+        &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be
+        interpreted as described in <xref target="RFC2119">RFC 2119</xref>.
+        </t>
+    </note>
+
+</front>
+
+<middle>
+    
+    <section anchor="introduction" title="Introduction">
+        <t>
+            Some Hypertext Transfer Protocol (HTTP) clients use Range requests for random access
+            to large representations. And in some cases, representations have content continuously
+            or periodically appended to the end - such as representations originating from live audio
+            or video sources. These types of clients currently cannot easily access the appended
+            content without transferring the content from the very start of the representation - potentially
+            never accessing the aggregated content due to bitrate limits - or by performing
+            high-frequency byte-range requests to attempt to access updated content. Both of 
+            these solutions are inefficient and problematic.
+        </t>
+        <t>
+            To accommodate byte range requests on large representations which have data appended 
+            over time, this document defines a new HTTP range unit named "bytes-live". 
+            The "bytes-live" range unit adds the ability for a client to specify a byte range in
+            a GET or HEAD request which starts at an arbitrary byte offset within the representation
+            and ends at an indeterminate offset, represented by "*".
+        </t>
+        <t>
+            The server indicates supports for the "bytes-live" range unit via the Accept-Ranges header.
+            If a client performs a "bytes-live" Range request on a dynamic representation (a representation
+            that has data appended over time), the server can provide a non-fixed-length payload in
+            response to one of these requests. For instance, a server can use chunked transfer mode to 
+            return currently available data and data that is appended to the representation as it becomes available.
+        </t>            
+    </section>
+    
+    <section anchor="definition" title="The &quot;bytes-live&quot; Range Request">       
+        <t>
+            As with the "bytes" range unit, a "bytes-live" Range request allows a client to designate
+            a subset of bytes from the representation data to be transferred in payloads as a sequence
+            of octets. But the form of a "bytes-live" request is focused on accessing data that may
+            be appended to the representation over time.
+        </t>
+        
+        <t>The bytes-live range unit has the following syntax:
+            <list>
+                <t>bytes-live-range-specifier = "bytes-live=" bytes-live-range-spec</t>
+                <t>bytes-live-range-spec = [ first-byte-pos "-" ] "*"</t>
+                <t>first-byte-pos  = 1*DIGIT</t>
+            </list>
+        </t>
+        <t>
+            The first-byte-pos value in a byte-range-spec gives the byte-offset of the first byte
+            in a range.  An asterisk character ("*") indicates that the end of requested range is
+            indeterminate and will include appended data if/when available.
+        </t>
+        
+        <t>
+            Examples of bytes-live-ranges-specifier values:
+            <list>
+                <t>
+                    Bytes 50000 to the end of the representation (including appended data, potentially unbound):
+                    <list>
+                        <t>bytes-live=500000-*</t>
+                    </list>
+                </t>
+                <t>
+                    All bytes appended to the end of the representation after the request is processed:
+                    <list>
+                        <t>bytes-live=*</t>
+                    </list>
+                </t>
+                <t>All bytes currently in the representation and those appended to the end of the 
+                    representation after the request is processed:
+                    <list>
+                        <t>bytes-live=0-*</t>
+                    </list>
+                </t>
+            </list>
+        </t>
+        <t>
+            A bytes-live-range-specifier is considered unsatisfiable if the first-byte-pos is larger
+            than the current length of the representation.
+        </t>
+    </section>
+    
+    <section anchor="responses" title="Responses to a Range* Request">
+        
+        <section anchor="content-range" title="The &quot;bytes-live&quot; Content-Range header field">
+            
+            <t>
+                As with the "bytes" Content-Range response form, a "bytes-live" Content-Range response
+                indicates the satisfyable or unsatisfyable range of a "bytes-live" range request.
+            </t>
+            <t>
+                The "bytes-live" Content-Range header is compliant with the Content-Range header 
+                rules defined in Section 4.2 and has the following syntax:
+                <list>
+                    <t>bytes-live-content-range  = "bytes-live" SP bytes-live-range-resp</t>
+                    <t>bytes-live-range-resp = bytes-live-range "/" ( complete-length / "*" )</t>
+                    <t>bytes-live-range = "*" / ( first-byte-pos "-" ( last-byte-pos / "*" ) )</t>
+                    <t>last-byte-pos  = 1*DIGIT</t>
+                    <t>complete-length = 1*DIGIT</t>
+                </list>
+            </t>
+            <t>
+                For bytes-live ranges, the sender MUST indicate the offset of the first available
+                byte in the returned range using the first-byte-pos. The sender MUST indicate the
+                complete length of the representation and the last byte position of the returned
+                range if the representation is no longer having data appended to it. Otherwise an
+                asterisk character ("*") MUST be used in place of the last-byte-pos to indicate the
+                returned range and any associated payload is not bounded. As is the case with byte
+                ranges, an asterisk character ("*") in place of the complete-length indicates that
+                the representation length was unknown when the header field was generated.
+            </t>
+            <t>
+                The following example illustrates when the last byte of the selected representation
+                is known by the sender to be 50000 bytes and is no longer being appended to:
+                <list>
+                    <t>Content-Range: bytes-live 40000-49999/50000</t>
+                </list>
+            </t>
+            <t>
+                This second example illustrates when the complete length of the selected representation
+                is unknown:
+                <list>
+                    <t>Content-Range: bytes 40000-*/*</t>
+                </list>
+            </t>
+            <t>
+                As is the case with a byte unit Content-Range field, the bytes-live Content-Range field
+                value is invalid if it contains a bytes-live-range-resp that has a last-byte-pos value
+                less than its first-byte-pos value or a complete-length value less than or equal to
+                its last-byte-pos value.
+            </t>
+        </section>
+        
+        <section anchor="partial-content" title="The &quot;bytes-live&quot; 206 (Partial Content) response">
+            <t>
+                The bytes-live 206 response MUST comply with section 4.1 of <xref target="RFC7233"></xref>.
+            </t>
+            
+            <t>
+                Additionally, responses to bytes-live requests that include an asterisk character ("*")
+                in place of the last-byte-pos of the bytes-live Content-Range header field and precede
+                a payload MUST use a transfer encoding mode appropriate for transferring dynamically
+                generated payload, such as chunked transfer encoding for HTTP/1.1 clients.
+            </t>
+            <t>
+                Dynamic representations may stop being aggregated at any point in time. So the transfer
+                mode used for bytes-live 206 responses MUST indicate when the end of a dynamic
+                representation being transferred is reached. For chunked mode transfer encoding in
+                HTTP/1.1, this is signaled with a 0-length chunk. For HTTP/1.0 clients, this can be
+                signaled by the server closing the connection.
+            </t>
+        </section>
+        
+        <section anchor="not-satisfiable" title="The &quot;bytes-live&quot; 416 (Range Not Satisfiable) response">        
+            <t>
+                For bytes-live ranges, failing to overlap the current extent means that the
+                first-byte-pos of the byte-range-spec is greater than the current length of the
+                selected representation. When this status code is generated in response to a
+                bytes-live-range request, the sender MUST generate a Content-Range header field
+                specifying the currently available range of the selected representation 
+                (Section 4.2 of <xref target="RFC7233"></xref>).
+            </t>        
+            <t>
+                For example, if the representation is no longer being appended:
+                <list hangIndent="8" style="hanging">
+                    <t>HTTP/1.1 416 Range Not Satisfiable</t>
+                    <t>Date: Wed, 23 Mar 2015 11:21:12 GMT</t>
+                    <t>Content-Range: bytes-live 5000-97229/97230</t>
+                </list>
+            </t>
+            <t>
+                And if the representation is still being appended:
+                <list hangIndent="8" style="hanging">
+                    <t>HTTP/1.1 416 Range Not Satisfiable</t>
+                    <t>Date: Wed, 23 Mar 2015 11:21:12 GMT</t>
+                    <t>Content-Range: bytes-live 5000-97229/*</t>
+                </list>
+            </t>
+        </section>
+    </section>
+    
+    <section anchor="accept-ranges" title="Accept-Ranges">
+        <t>
+            The "Accept-Ranges" header field described in Section 2.3 of <xref target="RFC7233"></xref>
+            allows a server to indicate that it supports range requests for the target resource.
+        </t>
+        <t>
+            An origin server that supports bytes-live range requests for a given target resource MUST send
+            <list>
+                <t>Accept-Ranges: bytes-live</t>
+            </list>
+            to indicate it supports bytes-live range units.
+        </t> 
+    </section>    
+
+<!-- Possibly a 'Contributors' section ... -->
+
+    <section anchor="IANA" title="IANA Considerations">
+        <section title="Range Unit Registry">
+            <t>
+                The "HTTP Range Unit Registry" defines the namespace for the range unit names and refers
+                to their corresponding specifications.  The registry has been created and is now 
+                maintained at <xref target="RANGE-UNIT-REGISTRY"></xref>.
+            </t>
+            <t>
+                Registration of the bytes-live Range Unit is as follows:
+            </t>
+            <texttable>
+                <ttcol align='center'>Range Unit Name</ttcol>
+                <ttcol align='center'>Description</ttcol>
+                <ttcol align='center'>Reference</ttcol>
+                <c>bytes-live</c>
+                <c>a range of octets with increasing length </c>
+                <c><xref target="definition" /></c>
+            </texttable>
+        </section>
+    </section>
+    
+    <section anchor="Security" title="Security Considerations">
+        <t>There are no known security concerns introduced by use of the bytes-live range unit.</t>
+    </section>
+    
+    <section anchor="Acknowledgements" title="Acknowledgements">
+        <t>
+        </t>
+    </section>
+    
+</middle>
+
+<!--  *****BACK MATTER ***** -->
+<back>
+    <!-- References split to informative and normative -->
+    <references title="Normative References">
+        &RFC2119;
+        &RFC7233;
+        &RFC2629;
+    </references>
+
+    <references title="Informative References">
+        <reference anchor="RANGE-UNIT-REGISTRY"
+            target="http://www.iana.org/assignments/http-parameters/http-parameters.xhtml#range-units">
+            <front>
+                <title>Hypertext Transfer Protocol (HTTP) Parameters</title>
+                <author>
+                    <organization>IANA</organization>
+                </author>
+                <date year="2016"/>
+            </front>
+        </reference>
+        &RFC4234;
+    </references>
+    
+</back>
+
+</rfc>
