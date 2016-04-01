@@ -162,28 +162,16 @@
     
     <section anchor="introduction" title="Introduction">
         <t>
-            Some Hypertext Transfer Protocol (HTTP) clients use Range requests for random access
-            to large representations. And in some cases, representations have content continuously
-            or periodically appended to the end - such as representations originating from live audio
-            or video sources. These types of clients currently cannot easily access the appended
-            content without transferring the content from the very start of the representation - potentially
-            never accessing the aggregated content due to bitrate limits - or by performing
-            high-frequency byte-range requests to attempt to access updated content. Both of 
-            these solutions are inefficient and problematic.
+             Some Hypertext Transfer Protocol (HTTP) clients use Range requests for random access to large representations. And in some cases these representations have content continuously or periodically appended - such as representations originating from live audio or video sources. These types of clients cannot easily access the appended/live content using a Range request with the bytes range unit.
         </t>
         <t>
-            To accommodate byte range requests on large representations which have data appended 
-            over time, this document defines a new HTTP range unit named "bytes-live". 
-            The "bytes-live" range unit adds the ability for a client to specify a byte range in
-            a GET or HEAD request which starts at an arbitrary byte offset within the representation
-            and ends at an indeterminate offset, represented by "*".
+			HTTP clients have the ability to access appended content by transfersferring the entire representation from the very beginning. For large representations, however, newly appended content may never be transferred due to bitrate limits. And even when the appended content is reached, it will be at the cost of start-up latency and wasted network bandwidth. HTTP clients can also attempt to access appended content by sending periodic bytes Range requests using the last-known end position. Performing periodic bytes Range requests (polling) introduces latency since the client will necessarily be somewhat behind the aggregated content - mimicking the behavior of segmented content representations such as HLS or MPEG-DASH. And performing these Range requests at higher frequency incurs more processing overhead and HTTP traffic as the requests often return no content - since content is usually aggregated in groups of bytes (e.g. a video frame or audio sample).
         </t>
         <t>
-            The server indicates supports for the "bytes-live" range unit via the Accept-Ranges header.
-            If a client performs a "bytes-live" Range request on a dynamic representation (a representation
-            that has data appended over time), the server can provide a non-fixed-length payload in
-            response to one of these requests. For instance, a server can use chunked transfer mode to 
-            return currently available data and data that is appended to the representation as it becomes available.
+              To accommodate byte range requests on large representations which have data appended over time, this document defines a new HTTP range unit named "bytes-live". The "bytes-live" range unit adds the ability for a client to specify a byte range in a GET or HEAD request which starts at an arbitrary byte offset within the representation and ends at an indeterminate offset, represented by "*". A client can also specify a request that immediately starts transferring aggregated/live content.
+        </t>
+        <t>
+            The server indicates supports for the "bytes-live" range unit via the Accept-Ranges header. If a client performs a "bytes-live" Range request on a dynamic representation (a representation that has data appended over time), the server can provide a non-fixed-length payload in response to one of these requests. For instance, a server can use chunked transfer mode to return currently available data and data that is appended to the representation as it becomes available. Normal TCP flow control ensures new chunks are received by the client as soon as they are added to the representation with very low latency and overhead for the HTTP client and server.
         </t>            
     </section>
     
@@ -237,7 +225,7 @@
         </t>
     </section>
     
-    <section anchor="responses" title="Responses to a Range* Request">
+    <section anchor="responses" title="Responses to a bytes-live Range Request">
         
         <section anchor="content-range" title="The &quot;bytes-live&quot; Content-Range header field">
             
