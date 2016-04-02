@@ -270,7 +270,7 @@ li, p {
   <link href="#rfc.toc" rel="Contents"/>
 <link href="#rfc.section.1" rel="Chapter" title="1 Introduction"/>
 <link href="#rfc.section.2" rel="Chapter" title="2 The &quot;bytes-live&quot; Range Request"/>
-<link href="#rfc.section.3" rel="Chapter" title="3 Responses to a Range* Request"/>
+<link href="#rfc.section.3" rel="Chapter" title="3 Responses to a bytes-live Range Request"/>
 <link href="#rfc.section.3.1" rel="Chapter" title="3.1 The &quot;bytes-live&quot; Content-Range header field"/>
 <link href="#rfc.section.3.2" rel="Chapter" title="3.2 The &quot;bytes-live&quot; 206 (Partial Content) response"/>
 <link href="#rfc.section.3.3" rel="Chapter" title="3.3 The &quot;bytes-live&quot; 416 (Range Not Satisfiable) response"/>
@@ -365,7 +365,7 @@ li, p {
 
   	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
 <li>2.   <a href="#rfc.section.2">The "bytes-live" Range Request</a></li>
-<li>3.   <a href="#rfc.section.3">Responses to a Range* Request</a></li>
+<li>3.   <a href="#rfc.section.3">Responses to a bytes-live Range Request</a></li>
 <ul><li>3.1.   <a href="#rfc.section.3.1">The "bytes-live" Content-Range header field</a></li>
 <li>3.2.   <a href="#rfc.section.3.2">The "bytes-live" 206 (Partial Content) response</a></li>
 <li>3.3.   <a href="#rfc.section.3.3">The "bytes-live" 416 (Range Not Satisfiable) response</a></li>
@@ -383,9 +383,10 @@ li, p {
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
-<p id="rfc.section.1.p.1">Some Hypertext Transfer Protocol (HTTP) clients use Range requests for random access to large representations. And in some cases, representations have content continuously or periodically appended to the end - such as representations originating from live audio or video sources. These types of clients currently cannot easily access the appended content without transferring the content from the very start of the representation - potentially never accessing the aggregated content due to bitrate limits - or by performing high-frequency byte-range requests to attempt to access updated content. Both of these solutions are inefficient and problematic.  </p>
-<p id="rfc.section.1.p.2">To accommodate byte range requests on large representations which have data appended over time, this document defines a new HTTP range unit named "bytes-live".  The "bytes-live" range unit adds the ability for a client to specify a byte range in a GET or HEAD request which starts at an arbitrary byte offset within the representation and ends at an indeterminate offset, represented by "*".  </p>
-<p id="rfc.section.1.p.3">The server indicates supports for the "bytes-live" range unit via the Accept-Ranges header.  If a client performs a "bytes-live" Range request on a dynamic representation (a representation that has data appended over time), the server can provide a non-fixed-length payload in response to one of these requests. For instance, a server can use chunked transfer mode to return currently available data and data that is appended to the representation as it becomes available.  </p>
+<p id="rfc.section.1.p.1">Some Hypertext Transfer Protocol (HTTP) clients use Range requests for random access to large representations. And in some cases these representations have content continuously or periodically appended - such as representations originating from live audio or video sources. These types of clients cannot easily access the appended/live content using a Range request with the bytes range unit.  </p>
+<p id="rfc.section.1.p.2">HTTP clients have the ability to access appended content by transfersferring the entire representation from the very beginning. For large representations, however, newly appended content may never be transferred due to bitrate limits. And even when the appended content is reached, it will be at the cost of start-up latency and wasted network bandwidth. HTTP clients can also attempt to access appended content by sending periodic bytes Range requests using the last-known end position. Performing periodic bytes Range requests (polling) introduces latency since the client will necessarily be somewhat behind the aggregated content - mimicking the behavior of segmented content representations such as HLS or MPEG-DASH. And performing these Range requests at higher frequency incurs more processing overhead and HTTP traffic as the requests often return no content - since content is usually aggregated in groups of bytes (e.g. a video frame or audio sample).  </p>
+<p id="rfc.section.1.p.3">To accommodate byte range requests on large representations which have data appended over time, this document defines a new HTTP range unit named "bytes-live". The "bytes-live" range unit adds the ability for a client to specify a byte range in a GET or HEAD request which starts at an arbitrary byte offset within the representation and ends at an indeterminate offset, represented by "*". A client can also specify a request that immediately starts transferring aggregated/live content.  </p>
+<p id="rfc.section.1.p.4">The server indicates supports for the "bytes-live" range unit via the Accept-Ranges header. If a client performs a "bytes-live" Range request on a dynamic representation (a representation that has data appended over time), the server can provide a non-fixed-length payload in response to one of these requests. For instance, a server can use chunked transfer mode to return currently available data and data that is appended to the representation as it becomes available. Normal TCP flow control ensures new chunks are received by the client as soon as they are added to the representation with very low latency and overhead for the HTTP client and server.  </p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#definition" id="definition">The "bytes-live" Range Request</a></h1>
 <p id="rfc.section.2.p.1">As with the "bytes" range unit, a "bytes-live" Range request allows a client to designate a subset of bytes from the representation data to be transferred in payloads as a sequence of octets. But the form of a "bytes-live" request is focused on accessing data that may be appended to the representation over time.  </p>
 <p id="rfc.section.2.p.2">The bytes-live range unit has the following syntax: </p>
@@ -408,7 +409,7 @@ li, p {
 
 <p> </p>
 <p id="rfc.section.2.p.5">A bytes-live-range-specifier is considered unsatisfiable if the first-byte-pos is larger than the current length of the representation.  </p>
-<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#responses" id="responses">Responses to a Range* Request</a></h1>
+<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#responses" id="responses">Responses to a bytes-live Range Request</a></h1>
 <h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#content-range" id="content-range">The "bytes-live" Content-Range header field</a></h1>
 <p id="rfc.section.3.1.p.1">As with the "bytes" Content-Range response form, a "bytes-live" Content-Range response indicates the satisfyable or unsatisfyable range of a "bytes-live" range request.  </p>
 <p id="rfc.section.3.1.p.2">The "bytes-live" Content-Range header is compliant with the Content-Range header rules defined in Section 4.2 and has the following syntax: </p>
