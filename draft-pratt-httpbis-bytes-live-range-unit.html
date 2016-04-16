@@ -290,7 +290,7 @@ li, p {
 
   <meta name="dct.creator" content="Pratt, C., Stark, B., and D. Thakore" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-pratt-httpbis-bytes-live-range-unit-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-4-3" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-4-15" />
   <meta name="dct.abstract" content="To accommodate byte range requests for content that has data appended over time, this document defines a new HTTP range unit named &quot;bytes-live&quot;. The &quot;bytes-live&quot; range unit provides the ability for a client to specify a byte range in a GET or HEAD request which starts at an arbitrary byte offset within the representation and ends at an indeterminate offset, represented by &quot;*&quot;.  " />
   <meta name="description" content="To accommodate byte range requests for content that has data appended over time, this document defines a new HTTP range unit named &quot;bytes-live&quot;. The &quot;bytes-live&quot; range unit provides the ability for a client to specify a byte range in a GET or HEAD request which starts at an arbitrary byte offset within the representation and ends at an indeterminate offset, represented by &quot;*&quot;.  " />
 
@@ -314,7 +314,7 @@ li, p {
   <td class="right">B. Stark</td>
 </tr>
 <tr>
-  <td class="left">Expires: October 5, 2016</td>
+  <td class="left">Expires: October 17, 2016</td>
   <td class="right">AT&amp;T</td>
 </tr>
 <tr>
@@ -327,7 +327,7 @@ li, p {
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">April 3, 2016</td>
+  <td class="right">April 15, 2016</td>
 </tr>
 
     	
@@ -351,7 +351,7 @@ li, p {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on October 5, 2016.</p>
+<p>This Internet-Draft will expire on October 17, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -423,7 +423,7 @@ li, p {
 </ul>
 
 <p> </p>
-<p id="rfc.section.3.1.p.3">For bytes-live ranges, the sender MUST indicate the offset of the first available byte in the returned range using the first-byte-pos. The sender MUST indicate the complete length of the representation and the last byte position of the returned range if the representation is no longer having data appended to it. Otherwise an asterisk character ("*") MUST be used in place of the last-byte-pos to indicate the returned range and any associated payload is not bounded. As is the case with byte ranges, an asterisk character ("*") in place of the complete-length indicates that the representation length was unknown when the header field was generated.  </p>
+<p id="rfc.section.3.1.p.3">For bytes-live range responses, the sender MUST indicate the offset of the first available byte in the returned range using the first-byte-pos. The sender MUST indicate the complete length of the representation and the last byte position of the returned range if the representation is no longer having data appended to it. Otherwise an asterisk character ("*") MUST be used in place of the last-byte-pos to indicate the returned range and any associated payload is not bounded. As is the case with byte ranges, an asterisk character ("*") in place of the complete-length indicates that the representation length was unknown when the header field was generated.  </p>
 <p id="rfc.section.3.1.p.4">The following example illustrates when the last byte of the selected representation is known by the sender to be 50000 bytes and is no longer being appended to: </p>
 
 <ul class="empty">
@@ -434,11 +434,11 @@ li, p {
 <p id="rfc.section.3.1.p.5">This second example illustrates when the complete length of the selected representation is unknown: </p>
 
 <ul class="empty">
-  <li>Content-Range: bytes 40000-*/*</li>
+  <li>Content-Range: bytes-live 40000-*/*</li>
 </ul>
 
 <p> </p>
-<p id="rfc.section.3.1.p.6">As is the case with a byte unit Content-Range field, the bytes-live Content-Range field value is invalid if it contains a bytes-live-range-resp that has a last-byte-pos value less than its first-byte-pos value or a complete-length value less than or equal to its last-byte-pos value.  </p>
+<p id="rfc.section.3.1.p.6">As is the case with a bytes unit Content-Range field, the bytes-live Content-Range field value is invalid if it contains a bytes-live-range-resp that has a last-byte-pos value less than its first-byte-pos value or a complete-length value less than or equal to its last-byte-pos value.  </p>
 <h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#partial-content" id="partial-content">The "bytes-live" 206 (Partial Content) response</a></h1>
 <p id="rfc.section.3.2.p.1">The bytes-live 206 response MUST comply with section 4.1 of <a href="#RFC7233">[RFC7233]</a>.  </p>
 <p id="rfc.section.3.2.p.2">Additionally, responses to bytes-live requests that include an asterisk character ("*") in place of the last-byte-pos of the bytes-live Content-Range header field and precede a payload MUST use a transfer encoding mode appropriate for transferring dynamically generated payload, such as chunked transfer encoding for HTTP/1.1 clients.  </p>
@@ -520,12 +520,6 @@ li, p {
       </td>
       <td class="top"><a>Fielding, R.</a>, <a>Lafon, Y.</a> and <a>J. Reschke</a>, "<a href="http://tools.ietf.org/html/rfc7233">Hypertext Transfer Protocol (HTTP/1.1): Range Requests</a>", RFC 7233, DOI 10.17487/RFC7233, June 2014.</td>
     </tr>
-    <tr>
-      <td class="reference">
-        <b id="RFC7749">[RFC7749]</b>
-      </td>
-      <td class="top"><a>Reschke, J.</a>, "<a href="http://tools.ietf.org/html/rfc7749">The "xml2rfc" Version 2 Vocabulary</a>", RFC 7749, DOI 10.17487/RFC7749, February 2016.</td>
-    </tr>
   </tbody>
 </table>
 <h1 id="rfc.references.2"><a href="#rfc.references.2">8.2.</a> Informative References</h1>
@@ -558,8 +552,7 @@ li, p {
 	</span>
 	<span class="org vcardline">CableLabs</span>
 	<span class="adr">
-	  <span class="vcardline">16455 NW Comadrona Ln</span>
-
+	  
 	  <span class="vcardline">
 		<span class="locality">Portland</span>,  
 		<span class="region">OR</span> 
